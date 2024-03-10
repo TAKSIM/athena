@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from os import listdir, remove
 from os.path import join, exists
-from utils import temp_file, data_root, daily_data_cols
+from utils import temp_file, data_root
 
 
 def parse_daily_data(code='000300.SH', file_path=None):
@@ -18,18 +18,21 @@ def parse_daily_data(code='000300.SH', file_path=None):
         return data
 
 
-def get_ts(code, inst_type, freq=None, start=None, end=None):
-    # 获取time series
-    file_path = join(data_root, freq or '1d', inst_type, code)
-    if exists(file_path):
-        data = pd.read_pickle(file_path)
-    else:
-        return pd.DataFrame(columns=daily_data_cols)
-
-    if start:
-        data = data[data.index >= start]
-    if end:
-        data = data[data.index <= end]
+def parse_time_data(code='000300.SH', file_path=None, update=True):
+    # time data (e.g. 1min, 5min etc) from 国信证券终端（通达信）
+    fn = file_path or join(temp_file, code + '.csv')
+    data = pd.read_csv(fn, index_col='datetime', names=['date', 'time', 'open', 'high', 'low', 'close', 'vol', 'amt'],
+                       dtype={'time': str}, parse_dates={'datetime': ['date', 'time']},
+                       date_parser=lambda d, t: pd.to_datetime(d + ' ' + t, format='%Y-%m-%d %H%M'),
+                       skipfooter=1, encoding='gb2312', engine='python')
+    if update:
+        fn = join(data_root, '1min', code)
+        old_data = pd.read_pickle(fn)
+        old_latest = max(old_data.index)
+        print(f'{code}的一分钟数据原始最新为{old_latest}')
+        new_data = data[data.index > old_latest]
+        all_data = pd.concat([old_data, new_data], axis=0)
+        all_data.to_pickle(fn)
     return data
 
 
@@ -59,3 +62,7 @@ def convert_data(path):
 def convert_daily_data():
     convert_data(join(data_root, '1d', 'stock'))
     convert_data(join(data_root, '1d', 'index'))
+
+
+if __name__ == '__main__':
+    convert_daily_data()

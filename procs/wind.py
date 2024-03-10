@@ -1,9 +1,8 @@
 from WindPy import w
 import pandas as pd
 import datetime as dt
-from procs.tdx import get_ts
 import os
-from utils import data_root, daily_data_cols, timezones
+from utils import data_root, daily_data_cols, timezones, get_ts
 import pytz
 
 

@@ -30,7 +30,9 @@ def get_futures_info(code):
         if ret == futu.RET_OK:
             return info
         else:
-            raise Exception('获取期货合约{0}的数据时出错：{1}'.format(code, info))
+            # raise Exception('获取期货合约{0}的数据时出错：{1}'.format(code, info))
+            print(info)
+            return None
 
 
 def update_data(code, inst_type, freq):

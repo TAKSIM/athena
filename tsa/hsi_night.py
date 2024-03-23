@@ -89,7 +89,7 @@ def get_usopen_klines(trd_date, hsi_fut):
 
 if __name__ == '__main__':
     start_date = dt.date(2023, 12, 28)
-    end_date = dt.date(2024, 3, 1)
+    end_date = dt.date(2024, 3, 10)
     hsi = get_ts('HSI.HI', 'index', '1d')
     diffs = hsi['close'].diff()
     hsi = hsi[(hsi.index >= start_date) & (hsi.index <= end_date)]

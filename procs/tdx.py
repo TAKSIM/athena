@@ -4,6 +4,7 @@ import numpy as np
 from os import listdir, remove
 from os.path import join, exists
 from utils import temp_file, data_root
+import arrow as ar
 
 
 def parse_daily_data(code='000300.SH', file_path=None):
@@ -14,7 +15,7 @@ def parse_daily_data(code='000300.SH', file_path=None):
     if data.empty:
         return None
     else:
-        data.index = data.index.date
+        data.index = [d.date().isoformat() for d in data.index]
         return data
 
 
@@ -25,6 +26,7 @@ def parse_time_data(code='000300.SH', file_path=None, update=True):
                        dtype={'time': str}, parse_dates={'datetime': ['date', 'time']},
                        date_parser=lambda d, t: pd.to_datetime(d + ' ' + t, format='%Y-%m-%d %H%M'),
                        skipfooter=1, encoding='gb2312', engine='python')
+    data.index = [ar.get(t).strftime('%Y-%m-%d %H:%M:%S') for t in data.index]
     if update:
         fn = join(data_root, '1min', code)
         old_data = pd.read_pickle(fn)

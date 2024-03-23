@@ -34,7 +34,7 @@ def update_local_data(codes, as_of_date=None):
             print(f'本地没有{code}的数据，默认从2021年1月1日起下载')
             start_date = dt.date(2021, 1, 1)
         else:
-            start_date = max(old_data.index) + dt.timedelta(days=1)
+            start_date = dt.date.fromisoformat(max(old_data.index)) + dt.timedelta(days=1)
         # 计算截止日
         exch = exchs.loc[code]['EXCH_ENG']
         tz = timezones[exchs.loc[code]['COUNTRY']]
@@ -57,9 +57,10 @@ def update_local_data(codes, as_of_date=None):
             data.columns = daily_data_cols
             if len(data) == 1:
                 # 只有一天的数据时，万得返回的DataFrame是code作为index，而不是日期
-                old_data.loc[end_date] = data.loc[code]
+                old_data.loc[end_date.isoformat()] = data.loc[code]
                 old_data.to_pickle(file_path)
             else:
+                data.index = [d.isoformat() for d in data.index]
                 new_data = pd.concat([old_data, data])
                 new_data.to_pickle(file_path)
             print(f'更新{code}的数据从{start_date}到{end_date}')

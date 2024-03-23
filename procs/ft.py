@@ -50,10 +50,11 @@ def update_data(code, inst_type, freq):
             return data
         new_data = pd.concat([data, new_data], verify_integrity=True).sort_index(ascending=True)
     new_data.to_pickle(file)
+    print('存储新数据：{0}，{1}至{2}'.format(code, start_date, end_date))
     return new_data
 
 
 if __name__ == '__main__':
-    update_data('HK.HSI2402', 'index', '1min')
+    update_data('HK.HSI2403', 'index', '1min')
 
 

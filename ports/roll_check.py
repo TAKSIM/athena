@@ -10,6 +10,9 @@ month_map = {'01': 'F', '02': 'G', '03': 'H', '04': 'J', '05': 'K', '06': 'M',
 # COMEX黄金期货的代码从富途转为万得：从类似于US.GC2403转换为GCH24E.CMX
 gold_code_converter = lambda futu_code: 'GC' + month_map[futu_code[-2:]] + futu_code[-4:-2] + 'E.CMX'
 nq_code_converter = lambda futu_code: 'NQ' + month_map[futu_code[-2:]] + futu_code[-4:-2] + 'E.CME'
+brent_oil_code_converter = lambda futu_code: 'BR' + month_map[futu_code[-2:]] + futu_code[-3] + '.MCX'
+jpy_code_converter = lambda futu_code: 'J1' + month_map[futu_code[-2:]] + futu_code[-4:-2] + '.CME'
+ust10y_code_converter = lambda futu_code: 'TY' + month_map[futu_code[-2:]] + futu_code[-4:-2] + '.CBT'
 
 
 def get_position():
@@ -31,8 +34,15 @@ def convert_code(futu_code):
         return gold_code_converter(futu_code)
     elif inst == 'NQ':
         return nq_code_converter(futu_code)
+    elif inst == 'BZ':
+        return brent_oil_code_converter(futu_code)
+    elif inst == '6J':
+        return jpy_code_converter(futu_code)
+    elif inst == 'ZN':
+        return ust10y_code_converter(futu_code)
     else:
-        raise Exception("未编写转换功能的富途代码")
+        print("!!! 未编写转换功能的富途代码：{0}".format(futu_code))
+        return None
 
 
 def list_maturities(futu_code_list):
@@ -45,7 +55,8 @@ def list_maturities(futu_code_list):
         info = get_futures_info(code)
         if info is None:
             wc = convert_code(code)
-            wind_codes.append(wc)
+            if wc:
+                wind_codes.append(wc)
         else:
             last_trade_time = info['last_trade_time'][0]
             days_left = (dt.date.fromisoformat(last_trade_time) - td).days
